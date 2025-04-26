@@ -64,7 +64,7 @@ func (h *Handler) InitRoutes(port string) {
 			serv.Get("/", h.getServices)
 			serv.Post("/", h.createService)
 			//serv.Get("/:id", h.getOne)
-			//serv.Put("/:id", h.update)
+			serv.Put("/:id", h.updateService)
 			serv.Delete("/:id", h.deleteService)
 		}
 
