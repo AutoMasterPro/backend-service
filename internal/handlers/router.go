@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 	"github.com/rs/zerolog"
 	"time"
 )
@@ -38,11 +39,13 @@ func (h *Handler) InitRoutes(port string) {
 		Max:        10,
 	}))
 
-	api := app.Group("/api/v1")
+	api := app.Group("/tss/api/v1")
 	{
 		api.Get("/", func(ctx *fiber.Ctx) error {
 			return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "ok"})
 		})
+
+		api.Get("/metrics", monitor.New())
 
 		// auth
 		auth := api.Group("/auth")
