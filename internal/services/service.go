@@ -6,9 +6,11 @@ import (
 )
 
 type Service struct {
-	AuthService     AuthService
-	UserRoleService UserRoleService
-	ServiceService  ServiceService
+	AuthService        AuthService
+	UserRoleService    UserRoleService
+	ServiceService     ServiceService
+	VehicleService     VehicleService
+	AppointmentService AppointmentService
 }
 
 type ServiceDeps struct {
@@ -21,5 +23,11 @@ func NewService(deps ServiceDeps) *Service {
 		AuthService:     NewAuthService(deps.Storage.UserRepository),
 		UserRoleService: NewUserRoleService(deps.Storage.UserRepository),
 		ServiceService:  NewServiceService(deps.Storage.ServiceRepository),
+		VehicleService:  NewVehicleService(deps.Storage.VehicleRepository),
+		AppointmentService: NewAppointmentService(
+			deps.Storage.AppointmentRepository,
+			deps.Storage.VehicleRepository,
+			deps.Storage.ServiceRepository,
+		),
 	}
 }

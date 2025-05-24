@@ -61,7 +61,6 @@ func (h *Handler) InitRoutes(port string) {
 
 		serv := api.Group("/services")
 		{
-
 			serv.Use(h.middlewareAuth)
 
 			serv.Get("/", h.getServices)
@@ -71,6 +70,27 @@ func (h *Handler) InitRoutes(port string) {
 			serv.Delete("/:id", h.deleteService)
 		}
 
+		vehicles := api.Group("/vehicles")
+		{
+			vehicles.Use(h.middlewareAuth)
+
+			vehicles.Post("/", h.createVehicle)
+			vehicles.Get("/", h.getVehicles)
+			vehicles.Get("/:id", h.getVehicle)
+			vehicles.Put("/:id", h.updateVehicle)
+			vehicles.Delete("/:id", h.deleteVehicle)
+		}
+
+		appointments := api.Group("/appointments")
+		{
+			appointments.Use(h.middlewareAuth)
+
+			appointments.Post("/", h.createAppointment)
+			appointments.Get("/", h.getAppointments)
+			appointments.Get("/:id", h.getAppointment)
+			appointments.Put("/:id", h.updateAppointment)
+			appointments.Post("/:id/cancel", h.cancelAppointment)
+		}
 	}
 
 	h.log.Info().Msg("Starting server on port " + port)

@@ -6,8 +6,10 @@ import (
 )
 
 type Storage struct {
-	UserRepository    UserRepository
-	ServiceRepository ServiceRepository
+	UserRepository        UserRepository
+	ServiceRepository     ServiceRepository
+	VehicleRepository     VehicleRepository
+	AppointmentRepository AppointmentRepository
 }
 
 type StorageDeps struct {
@@ -17,7 +19,9 @@ type StorageDeps struct {
 
 func NewStorage(deps StorageDeps) *Storage {
 	return &Storage{
-		UserRepository:    NewUserStorage(deps),
-		ServiceRepository: NewServiceStorage(deps),
+		UserRepository:        NewUserStorage(deps),
+		ServiceRepository:     NewServiceStorage(deps),
+		VehicleRepository:     NewVehicleStorage(deps),
+		AppointmentRepository: NewAppointmentStorage(deps),
 	}
 }
