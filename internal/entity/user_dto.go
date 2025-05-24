@@ -2,8 +2,11 @@ package entity
 
 import (
 	"fmt"
+	"github.com/google/uuid"
+	"g
 	"golang.org/x/crypto/bcrypt"
 	"regexp"
+	"github.com/google/uuid"
 )
 
 type UserRegister struct {
@@ -75,5 +78,25 @@ func (e *UserLogin) UserLoginToUser() *User {
 	return &User{
 		Email:        e.Email,
 		PasswordHash: string(bytes),
+	}
+}
+
+type UserProfileResponse struct {
+	ID        uuid.UUID  `json:"id"`
+	FullName  string     `json:"full_name"`
+	Phone     string     `json:"phone"`
+	Email     string     `json:"email"`
+	IsAdmin   bool       `json:"is_admin"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
+}
+
+func (u *User) ToProfileResponse() *UserProfileResponse {
+	return &UserProfileResponse{
+		ID:        u.ID,
+		FullName:  u.FullName,
+		Phone:     u.Phone,
+		Email:     u.Email,
+		IsAdmin:   u.IsAdmin,
+		CreatedAt: u.CreatedAt,
 	}
 }

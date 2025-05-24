@@ -59,6 +59,11 @@ func (h *Handler) InitRoutes(port string) {
 			auth.Post("/login", h.login)
 		}
 
+		userProfile := api.Group("/profile")
+		{
+			userProfile.Get("/", h.middlewareAuth, h.getProfile)
+		}
+
 		serv := api.Group("/services")
 		{
 			serv.Use(h.middlewareAuth)

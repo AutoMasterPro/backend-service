@@ -48,7 +48,7 @@ func (s *userStorage) Create(ctx context.Context, user *entity.User) (uuid.UUID,
 
 func (s *userStorage) GetById(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	const query = `
-		SELECT id, full_name, phone, email, password_hash, is_admin
+		SELECT id, full_name, phone, email, password_hash, is_admin, created_at, updated_at
 		FROM users
 		WHERE id = $1 AND deleted_at IS NULL;
 	`
@@ -56,8 +56,11 @@ func (s *userStorage) GetById(ctx context.Context, id uuid.UUID) (*entity.User, 
 	row := s.pg.DB.QueryRowContext(ctx, query, id)
 
 	var user entity.User
-	if err := row.Scan(&user.ID, &user.FullName, &user.Phone, &user.Email, &user.PasswordHash, &user.IsAdmin); err != nil {
-		return nil, err
+	if err := row.Scan(
+		&user.ID, &user.FullName, &user.Phone, &user.Email,
+		&user.PasswordHash, &user.IsAdmin, &user.CreatedAt, &user.UpdatedAt,
+	); err != nil {
+		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	return &user, nil
