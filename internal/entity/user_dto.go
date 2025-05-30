@@ -3,10 +3,9 @@ package entity
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"g
 	"golang.org/x/crypto/bcrypt"
 	"regexp"
-	"github.com/google/uuid"
+	"time"
 )
 
 type UserRegister struct {
