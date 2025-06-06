@@ -104,7 +104,7 @@ func (a *AppointmentUpdate) Validate() error {
 
 	if a.Status != nil {
 		switch *a.Status {
-		case AppointmentStatusScheduled, AppointmentStatusCompleted, AppointmentStatusCancelled:
+		case AppointmentStatusScheduled, AppointmentStatusCompleted, AppointmentStatusCancelled, AppointmentStatusInProgress:
 			// Valid status
 		default:
 			return fmt.Errorf("invalid status: must be one of scheduled, completed, or cancelled")
