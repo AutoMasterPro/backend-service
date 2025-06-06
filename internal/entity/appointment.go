@@ -21,6 +21,7 @@ type Appointment struct {
 	AppointmentTime time.Time         `json:"appointment_time"`
 	Status          AppointmentStatus `json:"status"`
 	Services        []*Service        `json:"services,omitempty"`
+	Attachments     []string          `json:"attachments"`
 	CreatedAt       *time.Time        `json:"created_at,omitempty"`
 	UpdatedAt       *time.Time        `json:"updated_at,omitempty"`
 	DeletedAt       *time.Time        `json:"deleted_at,omitempty"`
@@ -30,6 +31,7 @@ type AppointmentCreate struct {
 	VehicleID       uuid.UUID   `json:"vehicle_id"`
 	AppointmentTime time.Time   `json:"appointment_time"`
 	ServiceIDs      []uuid.UUID `json:"service_ids"`
+	Attachments     []string    `json:"attachments"`
 }
 
 func (a *AppointmentCreate) Validate() error {
@@ -77,6 +79,7 @@ type AppointmentUpdate struct {
 	AppointmentTime *time.Time         `json:"appointment_time,omitempty"`
 	Status          *AppointmentStatus `json:"status,omitempty"`
 	ServiceIDs      []uuid.UUID        `json:"service_ids,omitempty"`
+	Attachments     []string           `json:"attachments,omitempty"`
 }
 
 func (a *AppointmentUpdate) Validate() error {
@@ -125,5 +128,6 @@ type AppointmentResponse struct {
 	Services        []*Service        `json:"services"`
 	TotalPrice      float64           `json:"total_price"`
 	TotalDuration   int               `json:"total_duration_min"`
+	Attachments     []string          `json:"attachments"`
 	CreatedAt       *time.Time        `json:"created_at,omitempty"`
 }

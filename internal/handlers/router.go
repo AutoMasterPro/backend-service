@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend-service/internal/services"
 	"backend-service/pkg/jwt"
+	"backend-service/pkg/s3"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
@@ -15,13 +16,15 @@ type Handler struct {
 	log        zerolog.Logger
 	services   *services.Service
 	jwtService *jwt.Service
+	S3         *s3.Client
 }
 
-func NewHandler(log zerolog.Logger, services *services.Service, jwtService *jwt.Service) *Handler {
+func NewHandler(log zerolog.Logger, services *services.Service, jwtService *jwt.Service, s3Client *s3.Client) *Handler {
 	return &Handler{
 		log:        log,
 		services:   services,
 		jwtService: jwtService,
+		S3:         s3Client,
 	}
 }
 
@@ -95,6 +98,21 @@ func (h *Handler) InitRoutes(port string) {
 			appointments.Get("/:id", h.getAppointment)
 			appointments.Put("/:id", h.updateAppointment)
 			appointments.Post("/:id/cancel", h.cancelAppointment)
+		}
+
+		assets := api.Group("/assets")
+		{
+			assets.Post("/upload", h.UploadFile)
+			assets.Get("/:token", h.GetFile)
+			assets.Delete("/:token", h.DeleteFile)
+		}
+
+		clients := api.Group("/clients")
+		{
+			clients.Use(h.middlewareAuth)
+
+			// Добавляю endpoint для получения всех клиентов и их записей
+			clients.Get("/appointments", h.getAllClientsWithAppointments)
 		}
 	}
 

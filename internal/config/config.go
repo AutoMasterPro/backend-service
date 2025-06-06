@@ -3,12 +3,14 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Config struct {
 	AppPort      string
 	AppSecretKey string
 	Postgres     Postgres
+	S3           S3
 }
 
 type Postgres struct {
@@ -20,67 +22,55 @@ type Postgres struct {
 	DBSSLMode string
 }
 
+type S3 struct {
+	Endpoint  string
+	AccessKey string
+	SecretKey string
+	Bucket    string
+	Region    string
+	UseSSL    bool
+}
+
+// Вспомогательная функция для env с дефолтом и логом
+func getEnv(key, def string) string {
+	val := os.Getenv(key)
+	if val == "" {
+		fmt.Printf("%s environment variable is not set. Using default value: %s\n", key, def)
+		return def
+	}
+	return val
+}
+
+// Для булевых значений
+func getEnvBool(key string, def bool) bool {
+	val := os.Getenv(key)
+	if val == "" {
+		fmt.Printf("%s environment variable is not set. Using default value: %v\n", key, def)
+		return def
+	}
+	val = strings.ToLower(val)
+	return val == "true" || val == "1"
+}
+
 func GetConfig() Config {
-	// APP
-	appPort := os.Getenv("APP_PORT")
-	if appPort == "" {
-		appPort = "8080"
-		fmt.Println("APP_PORT environment variable is not set. Using default value: 8080")
-	}
-
-	appSecretKey := os.Getenv("APP_SECRET_KEY")
-	if appSecretKey == "" {
-		appSecretKey = "secret"
-		fmt.Println("APP_SECRET_KEY environment variable is not set. Using default value: secret")
-	}
-
-	// Postgres
-	dbHost := os.Getenv("DB_HOST")
-	if dbHost == "" {
-		dbHost = "localhost"
-		fmt.Println("DB_HOST environment variable is not set. Using default value: localhost")
-	}
-
-	dbPort := os.Getenv("DB_PORT")
-	if dbPort == "" {
-		dbPort = "5432"
-		fmt.Println("DB_PORT environment variable is not set. Using default value: 5432")
-	}
-
-	dbUser := os.Getenv("DB_USER")
-	if dbUser == "" {
-		dbUser = "postgres"
-		fmt.Println("DB_USER environment variable is not set. Using default value: postgres")
-	}
-
-	dbName := os.Getenv("DB_NAME")
-	if dbName == "" {
-		dbName = "postgres"
-		fmt.Println("DB_NAME environment variable is not set. Using default value: postgres")
-	}
-
-	dbPass := os.Getenv("DB_PASS")
-	if dbPass == "" {
-		dbPass = "password"
-		fmt.Println("DB_PASS environment variable is not set. Using default value: password")
-	}
-
-	dbSSLMode := os.Getenv("DBSSL_MODE")
-	if dbSSLMode == "" {
-		dbSSLMode = "disable"
-		fmt.Println("DBSSL_MODE environment variable is not set. Using default value: disable")
-	}
-
 	return Config{
-		AppPort:      appPort,
-		AppSecretKey: appSecretKey,
+		AppPort:      getEnv("APP_PORT", "8080"),
+		AppSecretKey: getEnv("APP_SECRET_KEY", "secret"),
 		Postgres: Postgres{
-			DBHost:    dbHost,
-			DBPort:    dbPort,
-			DBUser:    dbUser,
-			DBName:    dbName,
-			DBPass:    dbPass,
-			DBSSLMode: dbSSLMode,
+			DBHost:    getEnv("DB_HOST", "localhost"),
+			DBPort:    getEnv("DB_PORT", "5432"),
+			DBUser:    getEnv("DB_USER", "postgres"),
+			DBName:    getEnv("DB_NAME", "postgres"),
+			DBPass:    getEnv("DB_PASS", "password"),
+			DBSSLMode: getEnv("DBSSL_MODE", "disable"),
+		},
+		S3: S3{
+			Endpoint:  getEnv("S3_ENDPOINT", "localhost:9000"),
+			AccessKey: getEnv("S3_ACCESS_KEY", "minioadmin"),
+			SecretKey: getEnv("S3_SECRET_KEY", "minioadmin"),
+			Bucket:    getEnv("S3_BUCKET", "mybucket"),
+			Region:    getEnv("S3_REGION", "us-east-1"),
+			UseSSL:    getEnvBool("S3_USE_SSL", false),
 		},
 	}
 }

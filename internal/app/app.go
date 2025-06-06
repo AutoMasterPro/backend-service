@@ -7,6 +7,7 @@ import (
 	"backend-service/internal/storages"
 	"backend-service/pkg/database"
 	"backend-service/pkg/jwt"
+	"backend-service/pkg/s3"
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"os"
@@ -52,8 +53,15 @@ func Run() {
 		AccessTokenTTL:  time.Hour * 24 * 7,
 		RefreshTokenTTL: 0,
 	}, nil)
+
+	// S3
+	s3Client, err := s3.New(cfg.S3.Endpoint, cfg.S3.AccessKey, cfg.S3.SecretKey, cfg.S3.Bucket, cfg.S3.Region, cfg.S3.UseSSL)
+	if err != nil {
+		logger.Warn().Err(err).Msg("Failed to initialize s3 client")
+	}
+
 	// handlers
-	handler := handlers.NewHandler(logger, service, jwtService)
+	handler := handlers.NewHandler(logger, service, jwtService, s3Client)
 	// run
 	handler.InitRoutes(cfg.AppPort)
 }

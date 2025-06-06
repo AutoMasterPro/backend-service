@@ -12,6 +12,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *entity.User) (userID uuid.UUID, err error)
 	GetById(ctx context.Context, id uuid.UUID) (user *entity.User, err error)
 	GetByEmail(ctx context.Context, email string) (user *entity.User, err error)
+	GetAllClients(ctx context.Context) ([]*entity.User, error)
 }
 
 type userStorage struct {
@@ -81,4 +82,30 @@ func (s *userStorage) GetByEmail(ctx context.Context, email string) (*entity.Use
 	}
 
 	return &user, nil
+}
+
+func (s *userStorage) GetAllClients(ctx context.Context) ([]*entity.User, error) {
+	const query = `
+		SELECT id, full_name, phone, email, is_admin, created_at, updated_at
+		FROM users
+		WHERE is_admin = false AND deleted_at IS NULL;
+	`
+	rows, err := s.pg.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []*entity.User
+	for rows.Next() {
+		var user entity.User
+		if err := rows.Scan(
+			&user.ID, &user.FullName, &user.Phone, &user.Email,
+			&user.IsAdmin, &user.CreatedAt, &user.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+	return users, nil
 }

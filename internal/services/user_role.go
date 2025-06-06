@@ -10,6 +10,7 @@ import (
 type UserRoleService interface {
 	IsAdmin(ctx context.Context, userId uuid.UUID) (bool, error)
 	GetById(ctx context.Context, id uuid.UUID) (*entity.User, error)
+	GetAllClients(ctx context.Context) ([]*entity.User, error)
 }
 
 type userRoleService struct {
@@ -32,4 +33,8 @@ func (u *userRoleService) IsAdmin(ctx context.Context, userId uuid.UUID) (bool, 
 
 func (u *userRoleService) GetById(ctx context.Context, id uuid.UUID) (*entity.User, error) {
 	return u.userService.GetById(ctx, id)
+}
+
+func (u *userRoleService) GetAllClients(ctx context.Context) ([]*entity.User, error) {
+	return u.userService.GetAllClients(ctx)
 }

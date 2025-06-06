@@ -7,15 +7,15 @@ import (
 )
 
 type User struct {
-	ID           uuid.UUID
-	FullName     string
-	Phone        string
-	Email        string
-	PasswordHash string
-	IsAdmin      bool
-	CreatedAt    *time.Time
-	UpdatedAt    *time.Time
-	DeletedAt    *time.Time
+	ID           uuid.UUID  `json:"id,omitempty"`
+	FullName     string     `json:"full_name,omitempty"`
+	Phone        string     `json:"phone,omitempty"`
+	Email        string     `json:"email,omitempty"`
+	PasswordHash string     `json:"password_hash,omitempty"`
+	IsAdmin      bool       `json:"is_admin,omitempty"`
+	CreatedAt    *time.Time `json:"created_at,omitempty"`
+	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
+	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
 }
 
 func (e *User) CheckPasswordHash(password string) bool {

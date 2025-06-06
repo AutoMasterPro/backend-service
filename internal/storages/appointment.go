@@ -42,14 +42,14 @@ func (s *appointmentStorage) Create(ctx context.Context, appointment *entity.App
 
 	// Insert appointment
 	const appointmentQuery = `
-		INSERT INTO appointments (id, user_id, vehicle_id, appointment_time, status)
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO appointments (id, user_id, vehicle_id, appointment_time, status, attachments)
+		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING id;
 	`
 
 	row := tx.QueryRowContext(ctx, appointmentQuery,
 		appointment.ID, appointment.UserID, appointment.VehicleID,
-		appointment.AppointmentTime, appointment.Status,
+		appointment.AppointmentTime, appointment.Status, pq.Array(appointment.Attachments),
 	)
 
 	if err := row.Scan(&appointment.ID); err != nil {
@@ -78,7 +78,7 @@ func (s *appointmentStorage) Create(ctx context.Context, appointment *entity.App
 func (s *appointmentStorage) GetById(ctx context.Context, id uuid.UUID) (*entity.Appointment, error) {
 	const query = `
 		SELECT 
-			a.id, a.user_id, a.vehicle_id, a.appointment_time, a.status,
+			a.id, a.user_id, a.vehicle_id, a.appointment_time, a.status, a.attachments,
 			COALESCE(json_agg(json_build_object(
 				'id', s.id,
 				'name', s.name,
@@ -90,7 +90,7 @@ func (s *appointmentStorage) GetById(ctx context.Context, id uuid.UUID) (*entity
 		LEFT JOIN appointment_services as_link ON a.id = as_link.appointment_id
 		LEFT JOIN services s ON as_link.service_id = s.id AND s.deleted_at IS NULL
 		WHERE a.id = $1 AND a.deleted_at IS NULL
-		GROUP BY a.id, a.user_id, a.vehicle_id, a.appointment_time, a.status;
+		GROUP BY a.id, a.user_id, a.vehicle_id, a.appointment_time, a.status, a.attachments;
 	`
 
 	row := s.pg.DB.QueryRowContext(ctx, query, id)
@@ -99,7 +99,7 @@ func (s *appointmentStorage) GetById(ctx context.Context, id uuid.UUID) (*entity
 	var servicesJSON []byte
 	if err := row.Scan(
 		&appointment.ID, &appointment.UserID, &appointment.VehicleID,
-		&appointment.AppointmentTime, &appointment.Status, &servicesJSON,
+		&appointment.AppointmentTime, &appointment.Status, pq.Array(&appointment.Attachments), &servicesJSON,
 	); err != nil {
 		return nil, fmt.Errorf("failed to get appointment: %w", err)
 	}
@@ -110,7 +110,7 @@ func (s *appointmentStorage) GetById(ctx context.Context, id uuid.UUID) (*entity
 func (s *appointmentStorage) GetByUserId(ctx context.Context, userId uuid.UUID) ([]*entity.Appointment, error) {
 	const query = `
 		SELECT 
-			a.id, a.user_id, a.vehicle_id, a.appointment_time, a.status,
+			a.id, a.user_id, a.vehicle_id, a.appointment_time, a.status, a.attachments,
 			COALESCE(json_agg(json_build_object(
 				'id', s.id,
 				'name', s.name,
@@ -122,7 +122,7 @@ func (s *appointmentStorage) GetByUserId(ctx context.Context, userId uuid.UUID) 
 		LEFT JOIN appointment_services as_link ON a.id = as_link.appointment_id
 		LEFT JOIN services s ON as_link.service_id = s.id AND s.deleted_at IS NULL
 		WHERE a.user_id = $1 AND a.deleted_at IS NULL
-		GROUP BY a.id, a.user_id, a.vehicle_id, a.appointment_time, a.status
+		GROUP BY a.id, a.user_id, a.vehicle_id, a.appointment_time, a.status, a.attachments
 		ORDER BY a.appointment_time DESC;
 	`
 
@@ -138,7 +138,7 @@ func (s *appointmentStorage) GetByUserId(ctx context.Context, userId uuid.UUID) 
 		var servicesJSON []byte
 		if err := rows.Scan(
 			&appointment.ID, &appointment.UserID, &appointment.VehicleID,
-			&appointment.AppointmentTime, &appointment.Status, &servicesJSON,
+			&appointment.AppointmentTime, &appointment.Status, pq.Array(&appointment.Attachments), &servicesJSON,
 		); err != nil {
 			return nil, fmt.Errorf("failed to scan appointment: %w", err)
 		}
@@ -151,12 +151,12 @@ func (s *appointmentStorage) GetByUserId(ctx context.Context, userId uuid.UUID) 
 func (s *appointmentStorage) Update(ctx context.Context, appointment *entity.Appointment) error {
 	const query = `
 		UPDATE appointments
-		SET appointment_time = $2, status = $3, updated_at = NOW()
+		SET appointment_time = $2, status = $3, attachments = $4, updated_at = NOW()
 		WHERE id = $1 AND deleted_at IS NULL;
 	`
 
 	result, err := s.pg.DB.ExecContext(ctx, query,
-		appointment.ID, appointment.AppointmentTime, appointment.Status,
+		appointment.ID, appointment.AppointmentTime, appointment.Status, pq.Array(appointment.Attachments),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update appointment: %w", err)

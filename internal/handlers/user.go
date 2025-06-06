@@ -27,3 +27,30 @@ func (h *Handler) getProfile(c *fiber.Ctx) error {
 		"details": user.ToProfileResponse(),
 	})
 }
+
+func (h *Handler) getAllClientsWithAppointments(c *fiber.Ctx) error {
+	ctx := c.Context()
+	clients, err := h.services.UserRoleService.GetAllClients(ctx)
+	if err != nil {
+		h.log.Error().Err(err).Msg("error getting clients")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": "error getting clients"})
+	}
+
+	result := make([]map[string]interface{}, 0, len(clients))
+	for _, client := range clients {
+		appointments, err := h.services.AppointmentService.GetByUserId(ctx, client.ID)
+		if err != nil {
+			h.log.Error().Err(err).Msg("error getting appointments for client")
+			appointments = nil
+		}
+		result = append(result, map[string]interface{}{
+			"client":       client,
+			"appointments": appointments,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "ok",
+		"details": result,
+	})
+}

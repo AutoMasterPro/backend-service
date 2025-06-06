@@ -59,6 +59,7 @@ func (s *appointmentService) Create(ctx context.Context, userID uuid.UUID, input
 
 	// Create appointment
 	appointment := input.ToAppointment(userID)
+	appointment.Attachments = input.Attachments
 	return s.appointmentRepo.Create(ctx, appointment, input.ServiceIDs)
 }
 
@@ -94,6 +95,10 @@ func (s *appointmentService) Update(ctx context.Context, id uuid.UUID, input *en
 
 	if input.Status != nil {
 		appointment.Status = *input.Status
+	}
+
+	if input.Attachments != nil {
+		appointment.Attachments = input.Attachments
 	}
 
 	if err := s.appointmentRepo.Update(ctx, appointment); err != nil {
