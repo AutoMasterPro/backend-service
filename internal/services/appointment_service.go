@@ -81,17 +81,17 @@ func (s *appointmentService) Update(ctx context.Context, id uuid.UUID, input *en
 		return fmt.Errorf("failed to get appointment: %w", err)
 	}
 
-	if input.AppointmentTime != nil {
-		// Check if the new time slot is available
-		available, err := s.appointmentRepo.CheckTimeSlotAvailable(ctx, input.AppointmentTime.Format("2006-01-02 15:04:05"))
-		if err != nil {
-			return fmt.Errorf("failed to check time slot: %w", err)
-		}
-		if !available {
-			return fmt.Errorf("time slot is not available")
-		}
-		appointment.AppointmentTime = *input.AppointmentTime
-	}
+	//if input.AppointmentTime != nil {
+	//	// Check if the new time slot is available
+	//	available, err := s.appointmentRepo.CheckTimeSlotAvailable(ctx, input.AppointmentTime.Format("2006-01-02 15:04:05"))
+	//	if err != nil {
+	//		return fmt.Errorf("failed to check time slot: %w", err)
+	//	}
+	//	if !available {
+	//		return fmt.Errorf("time slot is not available")
+	//	}
+	//	appointment.AppointmentTime = *input.AppointmentTime
+	//}
 
 	if input.Status != nil {
 		appointment.Status = *input.Status

@@ -85,9 +85,9 @@ type AppointmentUpdate struct {
 func (a *AppointmentUpdate) Validate() error {
 	if a.AppointmentTime != nil {
 		// Check if appointment time is in the future
-		if a.AppointmentTime.Before(time.Now()) {
-			return fmt.Errorf("appointment time must be in the future")
-		}
+		//if a.AppointmentTime.Before(time.Now()) {
+		//	return fmt.Errorf("appointment time must be in the future")
+		//}
 
 		// Check if appointment is within business hours (assuming 9 AM to 6 PM)
 		hour := a.AppointmentTime.Hour()
