@@ -9,9 +9,10 @@ import (
 type AppointmentStatus string
 
 const (
-	AppointmentStatusScheduled AppointmentStatus = "scheduled"
-	AppointmentStatusCompleted AppointmentStatus = "completed"
-	AppointmentStatusCancelled AppointmentStatus = "cancelled"
+	AppointmentStatusScheduled  AppointmentStatus = "scheduled"
+	AppointmentStatusCompleted  AppointmentStatus = "completed"
+	AppointmentStatusCancelled  AppointmentStatus = "cancelled"
+	AppointmentStatusInProgress AppointmentStatus = "in_progress"
 )
 
 type Appointment struct {
