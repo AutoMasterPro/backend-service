@@ -4,6 +4,7 @@ import (
 	"backend-service/internal/entity"
 	"backend-service/pkg/database"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -103,7 +104,10 @@ func (s *appointmentStorage) GetById(ctx context.Context, id uuid.UUID) (*entity
 	); err != nil {
 		return nil, fmt.Errorf("failed to get appointment: %w", err)
 	}
-
+	var services []*entity.Service
+	if err := json.Unmarshal(servicesJSON, &services); err == nil {
+		appointment.Services = services
+	}
 	return &appointment, nil
 }
 
@@ -141,6 +145,10 @@ func (s *appointmentStorage) GetByUserId(ctx context.Context, userId uuid.UUID) 
 			&appointment.AppointmentTime, &appointment.Status, pq.Array(&appointment.Attachments), &servicesJSON,
 		); err != nil {
 			return nil, fmt.Errorf("failed to scan appointment: %w", err)
+		}
+		var services []*entity.Service
+		if err := json.Unmarshal(servicesJSON, &services); err == nil {
+			appointment.Services = services
 		}
 		appointments = append(appointments, &appointment)
 	}
