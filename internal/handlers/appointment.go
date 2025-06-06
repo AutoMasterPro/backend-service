@@ -83,21 +83,21 @@ func (h *Handler) getAppointment(c *fiber.Ctx) error {
 			"message": err.Error(),
 		})
 	}
-
-	// Check if the appointment belongs to the requesting user
-	userID, err := uuid.Parse(c.Locals("UID").(string))
-	if err != nil {
-		h.log.Error().Err(err).Msg("error parsing user id")
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "error parsing user id",
-		})
-	}
-
-	if appointment.UserID != userID {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"message": "forbidden",
-		})
-	}
+	//
+	//// Check if the appointment belongs to the requesting user
+	//userID, err := uuid.Parse(c.Locals("UID").(string))
+	//if err != nil {
+	//	h.log.Error().Err(err).Msg("error parsing user id")
+	//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	//		"message": "error parsing user id",
+	//	})
+	//}
+	//
+	//if appointment.UserID != userID {
+	//	return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+	//		"message": "forbidden",
+	//	})
+	//}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "ok",
