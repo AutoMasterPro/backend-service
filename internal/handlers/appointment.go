@@ -115,27 +115,27 @@ func (h *Handler) updateAppointment(c *fiber.Ctx) error {
 	}
 
 	// Check if the appointment exists and belongs to the user
-	appointment, err := h.services.AppointmentService.GetById(c.Context(), appointmentID)
-	if err != nil {
-		h.log.Error().Err(err).Msg("error getting appointment")
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"message": err.Error(),
-		})
-	}
+	//appointment, err := h.services.AppointmentService.GetById(c.Context(), appointmentID)
+	//if err != nil {
+	//	h.log.Error().Err(err).Msg("error getting appointment")
+	//	return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+	//		"message": err.Error(),
+	//	})
+	//}
 
-	userID, err := uuid.Parse(c.Locals("UID").(string))
-	if err != nil {
-		h.log.Error().Err(err).Msg("error parsing user id")
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": "error parsing user id",
-		})
-	}
+	//userID, err := uuid.Parse(c.Locals("UID").(string))
+	//if err != nil {
+	//	h.log.Error().Err(err).Msg("error parsing user id")
+	//	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	//		"message": "error parsing user id",
+	//	})
+	//}
 
-	if appointment.UserID != userID {
-		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
-			"message": "forbidden",
-		})
-	}
+	//if appointment.UserID != userID {
+	//	return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+	//		"message": "forbidden",
+	//	})
+	//}
 
 	var input entity.AppointmentUpdate
 	if err := c.BodyParser(&input); err != nil {

@@ -88,7 +88,7 @@ func (s *userStorage) GetAllClients(ctx context.Context) ([]*entity.User, error)
 	const query = `
 		SELECT id, full_name, phone, email, is_admin, created_at, updated_at
 		FROM users
-		WHERE is_admin = false AND deleted_at IS NULL;
+		WHERE deleted_at IS NULL;
 	`
 	rows, err := s.pg.DB.QueryContext(ctx, query)
 	if err != nil {
