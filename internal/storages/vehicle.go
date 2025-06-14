@@ -12,6 +12,7 @@ type VehicleRepository interface {
 	Create(ctx context.Context, vehicle *entity.Vehicle) (uuid.UUID, error)
 	GetById(ctx context.Context, id uuid.UUID) (*entity.Vehicle, error)
 	GetByUserId(ctx context.Context, userId uuid.UUID) ([]*entity.Vehicle, error)
+	GetAll(ctx context.Context) ([]*entity.Vehicle, error)
 	Update(ctx context.Context, vehicle *entity.Vehicle) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -77,6 +78,34 @@ func (s *vehicleStorage) GetByUserId(ctx context.Context, userId uuid.UUID) ([]*
 	`
 
 	rows, err := s.pg.DB.QueryContext(ctx, query, userId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query vehicles: %w", err)
+	}
+	defer rows.Close()
+
+	var vehicles []*entity.Vehicle
+	for rows.Next() {
+		var vehicle entity.Vehicle
+		if err := rows.Scan(
+			&vehicle.ID, &vehicle.UserID, &vehicle.Brand, &vehicle.Model,
+			&vehicle.LicensePlate, &vehicle.Year, &vehicle.VIN,
+		); err != nil {
+			return nil, fmt.Errorf("failed to scan vehicle: %w", err)
+		}
+		vehicles = append(vehicles, &vehicle)
+	}
+
+	return vehicles, nil
+}
+
+func (s *vehicleStorage) GetAll(ctx context.Context) ([]*entity.Vehicle, error) {
+	const query = `
+		SELECT id, user_id, brand, model, license_plate, year, vin
+		FROM vehicles
+		WHERE deleted_at IS NULL;
+	`
+
+	rows, err := s.pg.DB.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query vehicles: %w", err)
 	}

@@ -53,7 +53,29 @@ func (h *Handler) getVehicles(c *fiber.Ctx) error {
 		})
 	}
 
-	vehicles, err := h.services.VehicleService.GetByUserId(c.Context(), userID)
+	// Check if all parameter is present
+	all := c.Query("all") == "true"
+	var vehicles []*entity.Vehicle
+
+	if all {
+		// Check if user is admin
+		isAdmin, err := h.services.UserRoleService.IsAdmin(c.Context(), userID)
+		if err != nil {
+			h.log.Error().Err(err).Msg("error checking admin status")
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": "error checking admin status",
+			})
+		}
+
+		if isAdmin {
+			vehicles, err = h.services.VehicleService.GetAll(c.Context())
+		} else {
+			vehicles, err = h.services.VehicleService.GetByUserId(c.Context(), userID)
+		}
+	} else {
+		vehicles, err = h.services.VehicleService.GetByUserId(c.Context(), userID)
+	}
+
 	if err != nil {
 		h.log.Error().Err(err).Msg("error getting vehicles")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{

@@ -12,6 +12,7 @@ type VehicleService interface {
 	Create(ctx context.Context, userID uuid.UUID, input *entity.VehicleCreate) (uuid.UUID, error)
 	GetById(ctx context.Context, id uuid.UUID) (*entity.Vehicle, error)
 	GetByUserId(ctx context.Context, userId uuid.UUID) ([]*entity.Vehicle, error)
+	GetAll(ctx context.Context) ([]*entity.Vehicle, error)
 	Update(ctx context.Context, id uuid.UUID, input *entity.VehicleUpdate) error
 	Delete(ctx context.Context, id uuid.UUID) error
 }
@@ -41,6 +42,10 @@ func (s *vehicleService) GetById(ctx context.Context, id uuid.UUID) (*entity.Veh
 
 func (s *vehicleService) GetByUserId(ctx context.Context, userId uuid.UUID) ([]*entity.Vehicle, error) {
 	return s.repo.GetByUserId(ctx, userId)
+}
+
+func (s *vehicleService) GetAll(ctx context.Context) ([]*entity.Vehicle, error) {
+	return s.repo.GetAll(ctx)
 }
 
 func (s *vehicleService) Update(ctx context.Context, id uuid.UUID, input *entity.VehicleUpdate) error {
